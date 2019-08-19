@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Tweather</string>
+    <string name="current_temperature">Current temperature</string>
+    <string name="temperature">%1$f °C / %2$f °F</string>
+    <string name="wind_speed">Wind speed</string>
+    <string name="cloudiness">Cloudiness</string>
+    <string name="standard_temperature_deviation_for_5_days">Standard Temperature Deviation for 5 days</string>
+</resources>
