@@ -5,4 +5,5 @@
     <string name="wind_speed">Wind speed</string>
     <string name="cloudiness">Cloudiness</string>
     <string name="standard_temperature_deviation_for_5_days">Standard Temperature Deviation for 5 days</string>
+    <string name="fetch_future_weather">Fetch future weather</string>
 </resources>

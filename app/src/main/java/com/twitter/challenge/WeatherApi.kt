@@ -10,10 +10,10 @@ import retrofit2.http.Path
 interface WeatherApi {
 
     @GET("current.json")
-    fun getCurrentCatalog(): Observable<WeatherConditions>
+    fun getCurrentWeather(): Observable<WeatherConditions>
 
     @GET("future_{day}.json")
-    fun getFutureCatalog(@Path("day") day: Int): Observable<WeatherConditions>
+    fun getFutureWeather(@Path("day") day: Int): Observable<WeatherConditions>
 
     companion object {
         fun create(): WeatherApi {

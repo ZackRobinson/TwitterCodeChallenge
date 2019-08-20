@@ -1,6 +1,7 @@
 package com.twitter.challenge;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,10 +22,10 @@ public class MainActivity extends AppCompatActivity {
         final TextView windSpeedView = findViewById(R.id.wind_speed);
         final ImageView cloudinessView = findViewById(R.id.cloudiness);
         final TextView deviationView = findViewById(R.id.deviation);
+        final View deviationBtn = findViewById(R.id.deviation_btn);
 
         final WeatherViewModel model = ViewModelProviders.of(this).get(WeatherViewModel.class);
         model.loadCurrentWeatherConditions();
-        model.loadFutureWeatherConditions();
 
         Observer<Float> currentTempObserver = new Observer<Float>() {
             @Override
@@ -51,8 +52,7 @@ public class MainActivity extends AppCompatActivity {
         Observer<Float> tempDeviationObserver = new Observer<Float>() {
             @Override
             public void onChanged(Float deviation) {
-                // TODO Add a button to fetch this instead of loading it onCreate
-                deviationView.setText(deviation + "");
+                deviationView.setText(deviation.toString());
             }
         };
 
@@ -60,6 +60,13 @@ public class MainActivity extends AppCompatActivity {
         model.getCurrentWindSpeed().observe(this, currentWindSpeedObserver);
         model.isCloudy().observe(this, currentCloudinessObserver);
         model.getFiveDayTempDeviation().observe(this, tempDeviationObserver);
+
+        deviationBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                model.loadFutureWeatherConditions();
+            }
+        });
 
     }
 

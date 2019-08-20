@@ -7,7 +7,9 @@ class TemperatureStatistics {
     companion object {
         fun standardDeviation(data: List<Double>): Double {
             val average = data.sum().div(data.size)
-            return sqrt(data.map { (it - average).pow(2.0) }.sum().div(data.size - 1))
+            return sqrt(data.map { temp -> (temp - average).pow(2.0) }.sum()
+                                                                .div
+                                                            (data.size)                 )
         }
     }
 

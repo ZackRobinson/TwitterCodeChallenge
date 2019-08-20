@@ -24,37 +24,40 @@ class WeatherViewModel : ViewModel() {
     private var futureWeatherDisposable: Disposable? = null
 
     fun loadCurrentWeatherConditions() {
-        currentWeatherDisposable = weatherApi.getCurrentCatalog().subscribeOn(Schedulers.io())
+        currentWeatherDisposable = weatherApi.getCurrentWeather().subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { conditions ->
+            .retry(5)
+            .subscribe({ conditions ->
                 Log.d(TAG, conditions.toString())
-                this.currentTemp.setValue(conditions.weather.temp.toFloat())
-                this.isCloudy.setValue(conditions.clouds.cloudiness > 50)
+                this.currentTemp.value = conditions.weather.temp.toFloat()
+                this.isCloudy.value = conditions.clouds.cloudiness > 50
                 this.currentWindSpeed.setValue(conditions.wind.speed)
-            }
-
+            }, { Log.d(TAG, "loadCurrentWeatherConditions: $it") })
     }
 
     fun loadFutureWeatherConditions() {
         val listOfFutureTemps = mutableListOf<Double>()
 
-        val observables = listOf( // TODO create this list dynamically
-            weatherApi.getFutureCatalog(1).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()),
-            weatherApi.getFutureCatalog(2).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()),
-            weatherApi.getFutureCatalog(3).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()),
-            weatherApi.getFutureCatalog(4).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()),
-            weatherApi.getFutureCatalog(5).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-        )
-
-        futureWeatherDisposable = Observable.merge(observables).subscribe { conditions ->
-            listOfFutureTemps.add(conditions.weather.temp.also { println("Future Temperature: $it List: $listOfFutureTemps") })
-                .also {
-                    fiveDayTempDeviation.setValue(
-                        TemperatureStatistics.standardDeviation(
-                            listOfFutureTemps
-                        ).toFloat().also { println("5 day Deviation: $it") })
-                }
+        val observables = mutableListOf<Observable<WeatherConditions>>()
+        for (i in 1..5) {
+            observables
+                .add(
+                    weatherApi.getFutureWeather(i)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread()).retry(5)
+                )
         }
 
+        futureWeatherDisposable = Observable.merge(observables).subscribe({ conditions ->
+            listOfFutureTemps.add(conditions.weather.temp
+                .also { println("Future Temperature: $it List: $listOfFutureTemps") })
+                .also {
+                    fiveDayTempDeviation.setValue(
+                        TemperatureStatistics.standardDeviation(listOfFutureTemps).toFloat()
+                            .also { println("5 day Deviation: $it") })
+                }
+        }, { Log.d(TAG, "loadFutureWeatherConditions: $it") })
+
     }
+
 }
